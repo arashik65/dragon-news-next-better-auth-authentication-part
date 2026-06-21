@@ -1,7 +1,9 @@
 "use client";
+import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const RegisterPage = () => {
   const {
@@ -20,15 +22,31 @@ const RegisterPage = () => {
 
   // }
   //r ekvabe kora jay react er hook form use kore
-  const handelRegisterFunc = (data) => {
-    console.log(data,"data");
-    const{email, name, photo, password}=data;
-    console.log(name,photo);
+   const[isShowPassword,setIsShowPassword]= useState(false);
+
+  const handelRegisterFunc = async (data) => {
+    console.log(data, "data");
+    const { email, name, photo, password } = data;
+    console.log(name, photo);
+    const { data: res, error } = await authClient.signUp.email({
+      name: name, // required
+      email: email, // required
+      password: password, // required
+      image: photo,
+      callbackURL: "/",
+    });
+    console.log(res, error);
+    if (error) {
+      alert(error.message);
+    }
+    if (res) {
+      alert("signup successful");
+    }
   };
-  console.log(errors,"errors");
+
   //jodi input field er value console e dekhte cay tayle warch function ta desstrcture korte hobe
-//   console.log(watch("email"));
-//   console.log(watch("password"));
+  //   console.log(watch("email"));
+  //   console.log(watch("password"));
 
   return (
     <div className="container mx-auto min h-[80vh] flex justify-center items-center bg-slate-100">
@@ -78,7 +96,7 @@ const RegisterPage = () => {
               <p className="text-red-500">{errors.email.message}</p>
             )}
           </fieldset>
-          <fieldset className="fieldset">
+          <fieldset className="fieldset relative">
             <legend className="fieldset-legend">Password</legend>
             <input
               type="password"
@@ -88,6 +106,12 @@ const RegisterPage = () => {
                 required: "password field is required",
               })}
             />
+            <span
+              className="absolute right-8 top-4 cursor-pointer"
+              onClick={() => setIsShowPassword(!isShowPassword)}
+            >
+              {isShowPassword ? <FaEye /> : <FaEyeSlash />}
+            </span>
             {errors.password && (
               <p className="text-red-500">{errors.password.message}</p>
             )}
@@ -96,7 +120,6 @@ const RegisterPage = () => {
             Register
           </button>
         </form>
-     
       </div>
     </div>
   );
